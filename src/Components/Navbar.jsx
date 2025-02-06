@@ -45,7 +45,7 @@ export default function Navbar() {
 
   
   const handleSignOut = () => {
-    localStorage.removeItem("isAuthenticated");
+    sessionStorage.removeItem("isAuthenticated");
     alert("Signed out successfully!");
     navigate("/");
   };

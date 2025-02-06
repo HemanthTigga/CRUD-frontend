@@ -18,7 +18,7 @@ import NavbarLoggedOut from "./Components/NavbarLoggedOut";
 function App() {
   const location = useLocation();
   const hideNavbar = ["/registerUser", "/loginUser"];
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  const isAuthenticated = sessionStorage.getItem("isAuthenticated");
   return (
     <>
       {/* <BrowserRouter> */}

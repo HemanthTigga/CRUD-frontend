@@ -46,7 +46,7 @@ export default function LoginUser() {
     //   return;
     // }
     try {
-      localStorage.setItem("isAuthenticated", "true");
+      sessionStorage.setItem("isAuthenticated", "true");
       const res = await axios.post("http://localhost:8081/loginUser", {
         userId,
         password,
