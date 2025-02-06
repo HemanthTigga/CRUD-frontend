@@ -14,7 +14,7 @@ import {
   ViewColumnsIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: "Home", 
@@ -43,9 +43,7 @@ function classNames(...classes) {
 export default function Navbar() {
   const navigate = useNavigate();
 
-  const handleSignIn = ()=>{
-    navigate("/loginUser");
-  }
+  
   const handleSignOut = () => {
     localStorage.removeItem("isAuthenticated");
     alert("Signed out successfully!");
@@ -112,14 +110,6 @@ export default function Navbar() {
               >
                 <MenuItem>
                   <a
-                    onClick={handleSignIn}
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                  >
-                    Sign In
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
                     onClick={handleSignOut}
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
@@ -153,85 +143,6 @@ export default function Navbar() {
         </div>
       </DisclosurePanel>
     </Disclosure>
-
-{/* vertical navbar */}
-      {/* <Disclosure
-        as="nav"
-        className="bg-transparent m-5 rounded-4xl  fixed left-1/2"
-      >
-        <div className="mx-auto px-2 sm:px-6 lg:px-8">
-          <div className="relative flex flex-col items-center justify-between h-full">
-            <div className="flex flex-col items-start w-full">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  aria-current={item.current ? "page" : undefined}
-                  className={classNames(
-                    item.current
-                      ? "bg-gray-900 text-gray-900"
-                      : "text-gray-500 hover:bg-gray-700 hover:text-white",
-                    "rounded-md my-4 text-sm font-medium w-full flex items-center justify-center space-x-2"
-                  )}
-                >
-                  {item.icon}
-                </a>
-              ))}
-            </div>
-            <div className="w-full mt-auto">
-              <Menu as="div" className="relative w-full">
-                <div>
-                  <MenuButton className="relative flex rounded-full bg-gray-800 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden w-full justify-center p-2">
-                    <UserIcon aria-hidden="true" className="h-6 w-6" />
-                  </MenuButton>
-                </div>
-                <MenuItems
-                  transition
-                  className="absolute left-0 z-10 mt-2 w-32 origin-top rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-                >
-                  <MenuItem>
-                    <a
-                      onClick={handleSignIn}
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Sign In
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <a
-                      onClick={handleSignOut}
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Sign Out
-                    </a>
-                  </MenuItem>
-                </MenuItems>
-              </Menu>
-            </div>
-          </div>
-        </div>
-
-        <DisclosurePanel className="lg:hidden">
-        <div className="space-y-1 px-2 pt-2 pb-3 top-0 ml-2">
-          {navigation.map((item) => (
-            <DisclosureButton
-              key={item.name}
-              as="a"
-              href={item.href}
-              aria-current={item.current ? "page" : undefined}
-              className={classNames(
-                item.current
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                "block rounded-md px-3 py-2 text-base font-medium"
-              )}
-            >
-              {item.icon}
-            </DisclosureButton>
-          ))}
-        </div>
-      </DisclosurePanel>
-      </Disclosure> */}
 
       
     </>

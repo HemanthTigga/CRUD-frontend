@@ -13,14 +13,17 @@ import RegisterUser from "./Pages/RegisterUser";
 import LoginUser from "./Pages/LoginUser";
 import PrivateRoute from "./PrivateRoute";
 import Home from "./Pages/Home";
+import NavbarLoggedOut from "./Components/NavbarLoggedOut";
 
 function App() {
   const location = useLocation();
   const hideNavbar = ["/registerUser", "/loginUser"];
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
   return (
     <>
       {/* <BrowserRouter> */}
-      {!hideNavbar.includes(location.pathname) && <Navbar />}
+      {/* {!hideNavbar.includes(location.pathname) && <Navbar />} */}
+      {!hideNavbar.includes(location.pathname) && (isAuthenticated ? <Navbar /> : <NavbarLoggedOut/>)}
       <Routes>
         
         <Route path="/addCustomer" element={
@@ -37,7 +40,7 @@ function App() {
         <Route path="/registerUser" element={<RegisterUser />} />
         <Route path="/loginUser" element={<LoginUser />} />
 
-        {/* <Route path="*" element={<Navigate to="/loginUser" replace />} /> */}
+        <Route path="*" element={<Navigate to="/loginUser" replace />} />
 
       </Routes>
       {/* </BrowserRouter> */}
