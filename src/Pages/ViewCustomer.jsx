@@ -1,7 +1,7 @@
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { EyeIcon, TrashIcon } from "@heroicons/react/16/solid";
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon, EyeIcon, TrashIcon } from "@heroicons/react/16/solid";
 import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 // import Navbar from "../Components/Navbar";
 import Alert from "../Components/Alert";
@@ -23,28 +23,46 @@ function ViewCustomer() {
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterAge, setFilterAge] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const onCloseAlert = () => {
     setAlert({ show: false, message: "" });
   };
   useEffect(() => {
     fetchCustomer();
-  }, [search, sortField, sortOrder, filterAge]);
+  }, [search, sortField, sortOrder, filterAge, page]);
 
   const fetchCustomer = async () => {
-    const baseURL = "http://localhost:8081/getCustomer";
+    // const baseURL = "http://localhost:8081/getCustomer";
 
-    const params = {
-      search: search || null,
+    // const params = {
+    //   search: search || null,
+    //   sortBy: sortField || null,
+    //   order: sortOrder || null,
+    //   filterAge: filterAge ? Number(filterAge) : null,
+    // };
+    // console.log("Params : ", params);
+    // const res = await axios.get(baseURL, { params });
+
+    // SetCustomer(res.data);
+    // console.log("Fetched customers", res.data);
+
+    const queryParams = new URLSearchParams({
+      page,
+      size: 3,
+      search,
       sortBy: sortField || null,
       order: sortOrder || null,
-      filterAge: filterAge ? Number(filterAge) : null,
-    };
-    console.log("Params : ", params);
-    const res = await axios.get(baseURL, { params });
+      filterAge,
+    }).toString();
 
-    SetCustomer(res.data);
-    console.log("Fetched customers", res.data);
+    fetch(`http://localhost:8081/getCustomer?${queryParams}`)
+      .then((response) => response.json())
+      .then((data) => {
+        SetCustomer(data.content);
+        setTotalPages(data.totalPages);
+      });
   };
   // const viewCustomer = async (id) => {
   //   const baseURL = "http://localhost:8081/viewCustomer/" + id;
@@ -118,20 +136,20 @@ function ViewCustomer() {
     <>
       {/* <Navbar /> */}
       {alert.show && <Alert message={alert.message} onClose={onCloseAlert} />}
-      <div className="flex items-center justify-center py-15.5 bg-[#161633] h-screen">
-        <div className="max-w-3xl w-full bg-transparent rounded-lg p-10">
-          <h2 className="text-center text-2xl font-bold text-amber-200 mb-6">
-            Customer Data
-          </h2>
+      <div className=" flex items-center justify-center py-15.5 bg-[#161633] h-screen">
+        <div className="max-w-5xl w-full bg-transparent rounded-lg p-10">
+          <h1 className="text-center text-3xl font-bold text-amber-200 mb-10">
+            Customers' Data
+          </h1>
           <div className="flex text-amber-200 justify-between">
             <input
               type="text"
-              placeholder="Search by Name or ID or Email"
+              placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full p-2 mb-3 rounded"
+              className=" p-2 mb-3 border-b-1"
             />
-            <div className="flex space-x-3 mb-3">
+            {/* <div className="flex space-x-3 mb-3"> */}
               <select
                 onChange={(e) => setSortField(e.target.value)}
                 value={sortField}
@@ -149,17 +167,25 @@ function ViewCustomer() {
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
               </select>
-            </div>
             <input
               type="number"
               placeholder="Filter by Age"
               value={filterAge}
               onChange={(e) => setFilterAge(e.target.value)}
-              className="w-full p-2 mb-3 rounded"
-            />
+              className=" p-2 mb-3 border-b-1"
+              />
+            <select
+                // onChange={(e) => setSortOrder(e.target.value)}
+                value={""}
+                className="p-2 rounded"
+                >
+                <option value="pdf">To pdf</option>
+                <option value="excel">To excel</option>
+              </select>
+                {/* </div> */}
           </div>
           <div className="overflow-y-scroll max-h-96 hide-scrollbar">
-            <ul role="list" className="divide-y divide-gray-100 max-w-3xl pr-5">
+            <ul role="list" className="divide-y divide-gray-100 max-w-5xl">
               {customer.map((customer) => (
                 <li
                   key={customer.email}
@@ -212,7 +238,26 @@ function ViewCustomer() {
                 </li>
               ))}
             </ul>
-          </div>
+            </div>
+            <div className="flex justify-between mt-6">
+            <button
+            className="text-amber-200"
+              onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+              disabled={page === 0}
+            >
+              <ArrowLeftCircleIcon className="size-6"/>
+            </button>
+            <button
+            className="text-amber-200"
+              onClick={() =>
+                setPage((prev) => Math.min(prev + 1, totalPages - 1))
+              }
+              disabled={page === totalPages - 1}
+            >
+              <ArrowRightCircleIcon className="size-6"/>
+            </button>
+            </div>
+          
         </div>
       </div>
 
