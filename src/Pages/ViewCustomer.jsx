@@ -19,15 +19,30 @@ function ViewCustomer() {
   const [isViewFormOpen, setIsViewFormOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [alert, setAlert] = useState({ show: false, message: "" });
+  const [search, setSearch] = useState("");
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [filterAge, setFilterAge] = useState("");
+
   const onCloseAlert = () => {
     setAlert({ show: false, message: "" });
   };
   useEffect(() => {
     fetchCustomer();
-  }, []);
+  }, [search, sortField, sortOrder, filterAge]);
+
   const fetchCustomer = async () => {
     const baseURL = "http://localhost:8081/getCustomer";
-    const res = await axios.get(baseURL);
+
+    const params = {
+      search: search || null,
+      sortBy: sortField || null,
+      order: sortOrder || null,
+      filterAge: filterAge ? Number(filterAge) : null,
+    };
+    console.log("Params : ", params);
+    const res = await axios.get(baseURL, { params });
+
     SetCustomer(res.data);
     console.log("Fetched customers", res.data);
   };
@@ -45,7 +60,7 @@ function ViewCustomer() {
     setSelectedCustomer(customer);
     setIsUpdateFormOpen(true);
   };
-  const ViewCustomerDetails = async(id) => {
+  const ViewCustomerDetails = async (id) => {
     const baseURL = "http://localhost:8081/viewCustomer/" + id;
     const res = await axios.get(baseURL);
     setSelectedCustomer(res.data);
@@ -59,7 +74,10 @@ function ViewCustomer() {
   };
   const handleChange = (e) => {
     // const { name, value } = e.target;
-    setSelectedCustomer({ ...selectedCustomer, [e.target.name]: e.target.value });
+    setSelectedCustomer({
+      ...selectedCustomer,
+      [e.target.name]: e.target.value,
+    });
     setErrors({ ...errors, [e.target.name]: "" });
   };
   const UpdateCustomer = async (e) => {
@@ -105,6 +123,41 @@ function ViewCustomer() {
           <h2 className="text-center text-2xl font-bold text-amber-200 mb-6">
             Customer Data
           </h2>
+          <div className="flex text-amber-200 justify-between">
+            <input
+              type="text"
+              placeholder="Search by Name or ID or Email"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full p-2 mb-3 rounded"
+            />
+            <div className="flex space-x-3 mb-3">
+              <select
+                onChange={(e) => setSortField(e.target.value)}
+                value={sortField}
+                className="p-2 rounded"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="id">Sort by ID</option>
+                <option value="age">Sort by Age</option>
+              </select>
+              <select
+                onChange={(e) => setSortOrder(e.target.value)}
+                value={sortOrder}
+                className="p-2 rounded"
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
+            <input
+              type="number"
+              placeholder="Filter by Age"
+              value={filterAge}
+              onChange={(e) => setFilterAge(e.target.value)}
+              className="w-full p-2 mb-3 rounded"
+            />
+          </div>
           <div className="overflow-y-scroll max-h-96 hide-scrollbar">
             <ul role="list" className="divide-y divide-gray-100 max-w-3xl pr-5">
               {customer.map((customer) => (
@@ -167,7 +220,6 @@ function ViewCustomer() {
 
       {isViewFormOpen && (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-          
           <div className="bg-[#161633] rounded-lg shadow-lg w-full max-w-sm px-6 py-8 right relative">
             <button
               onClick={closeViewForm}
@@ -175,16 +227,15 @@ function ViewCustomer() {
             >
               <XMarkIcon className="size-6" />
             </button>
-          
+
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-              
               <div className="flex flex-col items-center space-y-4">
-              <img
-                      alt={customer.name}
-                      src={`http://localhost:8081${customer.imgURL}`}
-                      className="size-28 flex-none rounded-full bg-gray-50"
-                    />
-              <div className=" flex flex-col justify-evenly">
+                <img
+                  alt={customer.name}
+                  src={`http://localhost:8081${customer.imgURL}`}
+                  className="size-28 flex-none rounded-full bg-gray-50"
+                />
+                <div className=" flex flex-col justify-evenly">
                   <p className="text-lg font-semibold text-amber-200">
                     Customer Id: {selectedCustomer.id}
                   </p>
@@ -197,7 +248,6 @@ function ViewCustomer() {
                   <p className="text-lg text-gray-500">
                     Email: {selectedCustomer.email}
                   </p>
-                  
                 </div>
               </div>
             </div>

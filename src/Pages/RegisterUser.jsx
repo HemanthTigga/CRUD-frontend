@@ -45,7 +45,7 @@ export default function RegisterUser() {
       const res = await axios.post("http://localhost:8081/registerUser", register);
       console.log(res.data);
       console.log("User added successfully");
-      navigate("/");
+      navigate("/loginUser");
     } catch (err) {
       console.log("User not added");
       console.log(err);
