@@ -17,7 +17,7 @@ function ViewCustomer() {
     name: "",
     age: "",
     email: "",
-    image:null,
+    image: null,
   });
   const [customer, SetCustomer] = useState([]);
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
@@ -76,7 +76,7 @@ function ViewCustomer() {
   const ViewCustomerDetails = async (id) => {
     const baseURL = "http://localhost:8081/viewCustomer/" + id;
     const res = await axios.get(baseURL);
-    console.log("res.data",res.data);
+    console.log("res.data", res.data);
     setSelectedCustomer((prev) => ({
       ...prev,
       ...res.data,
@@ -89,18 +89,10 @@ function ViewCustomer() {
   const closeUpdateForm = () => {
     setIsUpdateFormOpen(false);
   };
-  // const handleChange = (e) => {
-  //   // const { name, value } = e.target;
-  //   setSelectedCustomer({
-  //     ...selectedCustomer,
-  //     [e.target.name]: e.target.value,
-  //   });
-  //   setErrors({ ...errors, [e.target.name]: "" });
-  // };
 
   const handleChange = (e) => {
     const { name, type, value, files } = e.target;
-  
+
     if (type === "file") {
       const file = files[0];
       if (file) {
@@ -119,11 +111,10 @@ function ViewCustomer() {
         [name]: value,
       }));
     }
-  
+
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  
   const UpdateCustomer = async (e) => {
     e.preventDefault();
     const baseURL = "http://localhost:8081/updateCustomer";
@@ -157,6 +148,38 @@ function ViewCustomer() {
       }
     }
   };
+
+  const exportToPDF = () => {
+    axios({
+      url: "http://localhost:8081/export/pdf",
+      method: "GET",
+      responseType: "blob", // Important for handling binary data
+    }).then((response) => {
+      console.log(response)
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "customers.pdf");
+      document.body.appendChild(link);
+      link.click();
+    });
+  };
+
+  const exportToExcel = () => {
+    axios({
+      url: "http://localhost:8081/export/excel",
+      method: "GET",
+      responseType: "blob",
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "customers.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    });
+  };
+
 
   return (
     <>
@@ -200,13 +223,24 @@ function ViewCustomer() {
               onChange={(e) => setFilterAge(e.target.value)}
               className=" p-2 mb-3 border-b-1"
             />
-            <select
+            {/* <select
               // onChange={(e) => setSortOrder(e.target.value)}
               value={""}
               className="p-2 rounded"
             >
               <option value="pdf">To pdf</option>
               <option value="excel">To excel</option>
+            </select> */}
+            <select
+             className="p-2 rounded"
+              onChange={(e) => {
+                if (e.target.value === "pdf") exportToPDF();
+                else if (e.target.value === "excel") exportToExcel();
+              }}
+            >
+              <option value="">Export as...</option>
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
             </select>
             {/* </div> */}
           </div>
@@ -218,12 +252,11 @@ function ViewCustomer() {
                   className="flex justify-between gap-x-6 py-5"
                 >
                   <div className="flex min-w-0 gap-x-4 items-center">
-                    
                     <img
-                        src={customer.image}
-                        alt={customer.name}
-                        className="size-12 flex-none rounded-full bg-gray-50 object-cover"
-                      />
+                      src={customer.image}
+                      alt={customer.name}
+                      className="size-12 flex-none rounded-full bg-gray-50 object-cover"
+                    />
 
                     <div className="min-w-0 flex-auto">
                       <p className="text-sm/6 font-semibold text-amber-200">
