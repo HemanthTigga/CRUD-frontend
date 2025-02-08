@@ -34,19 +34,6 @@ function ViewCustomer() {
   }, [search, sortField, sortOrder, filterAge, page]);
 
   const fetchCustomer = async () => {
-    // const baseURL = "http://localhost:8081/getCustomer";
-
-    // const params = {
-    //   search: search || null,
-    //   sortBy: sortField || null,
-    //   order: sortOrder || null,
-    //   filterAge: filterAge ? Number(filterAge) : null,
-    // };
-    // console.log("Params : ", params);
-    // const res = await axios.get(baseURL, { params });
-
-    // SetCustomer(res.data);
-    // console.log("Fetched customers", res.data);
 
     const queryParams = new URLSearchParams({
       page,
@@ -64,6 +51,8 @@ function ViewCustomer() {
         setTotalPages(data.totalPages);
       });
   };
+  const nextPage = () => setPage((prev) => Math.min(prev + 1, totalPages - 1));
+const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
   // const viewCustomer = async (id) => {
   //   const baseURL = "http://localhost:8081/viewCustomer/" + id;
   //   await axios.get(baseURL);
@@ -242,17 +231,14 @@ function ViewCustomer() {
             <div className="flex justify-between mt-6">
             <button
             className="text-amber-200"
-              onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
-              disabled={page === 0}
+            onClick={prevPage} disabled={page === 0}
             >
               <ArrowLeftCircleIcon className="size-6"/>
             </button>
+            <h2 className="text-amber-200"> {page + 1} / {totalPages}</h2> {/* Show 1-based index */}
             <button
             className="text-amber-200"
-              onClick={() =>
-                setPage((prev) => Math.min(prev + 1, totalPages - 1))
-              }
-              disabled={page === totalPages - 1}
+            onClick={nextPage} disabled={page >= totalPages - 1}
             >
               <ArrowRightCircleIcon className="size-6"/>
             </button>
