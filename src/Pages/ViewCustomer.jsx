@@ -47,7 +47,8 @@ function ViewCustomer() {
     fetch(`http://localhost:8081/getCustomer?${queryParams}`)
       .then((response) => response.json())
       .then((data) => {
-        SetCustomer(data.content);
+        console.log("data : ",data);
+        SetCustomer(data.customers);
         setTotalPages(data.totalPages);
       });
   };
