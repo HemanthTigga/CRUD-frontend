@@ -17,40 +17,50 @@ function AddCustomer() {
     name: "",
     age:null,
     email: "",
-    // image: null,
+    image: null,
   });
 
   // const handleChange = (e) => {
-  //   const { name, value} = e.target;
+  //   const { name, value } = e.target;
   //   setFormData({ ...formData, [name]: value });
+  //   setErrors({...errors, [e.target.name] : ""});
   // };
+
   const handleChange = (e) => {
-    // const { name, value, files } = e.target;
-    const { name, value } = e.target;
-    // if(name === "image"){
-    //   setFormData({...formData,[name]:files[0]});
-    // }else{
-    //   setFormData({ ...formData, [name]: value });
-    // }
-    setFormData({ ...formData, [name]: value });
-    setErrors({...errors, [e.target.name] : ""});
+    const { name, value, files } = e.target;
+    
+    if (name === "image") {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ 
+        ...formData, 
+        [name]: name === "age" || name === "id" ? Number(value) : value 
+      });
+    }
+    setErrors({ ...errors, [name]: "" });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(errors);
     try {
       const formDatatoSend = new FormData();
-      formDatatoSend.append("id",formData.id);
-      formDatatoSend.append("name",formData.name);
-      formDatatoSend.append("age",formData.age);
-      formDatatoSend.append("email",formData.email);
-      // if(formData.image){
-      //   formDatatoSend.append("image",formData.image);
-      // }
-      await axios.post("http://localhost:8081/addCustomer", formData);
-      // await axios.post("http://localhost:8081/addCustomer", formDatatoSend,{
-      //   headers:{"Content-Type":"multipart/form-data"},
-      // });
+      const customerData = {
+        id: formData.id,
+        name: formData.name,
+        age: formData.age,
+        email: formData.email
+      };
+  
+      formDatatoSend.append("customer", new Blob([JSON.stringify(customerData)], { type: "application/json" }));
+  
+      if(formData.image){
+        formDatatoSend.append("image",formData.image);
+      }
+      // await axios.post("http://localhost:8081/addCustomer", formData);
+      await axios.post("http://localhost:8081/addCustomer", formDatatoSend,{
+        headers:{"Content-Type":"multipart/form-data"},
+      });
 
       // alert("Customer added successfully");
       setFormData({
@@ -58,18 +68,15 @@ function AddCustomer() {
         name: "",
         age: null,
         email: "",
-        // image:null,
+        image:null,
       });
       navigate("/");
     } catch (err) {
       console.log(err)
       if(err.response && err.response.status === 400){
         setErrors(err.response.data);
-      } else if(err.response && err.response.status === 409){
+      } else if(err.response && err.response.status === 409 || err.response.status === 500){
         setAlert({show:true,message:err.response.data.errorCode+" : "+err.response.data.message})
-      } else if(err.response && err.response.status === 500){
-        console.log(err.response.data);
-        setAlert({show:true,message:err.response.data.errorCode+" : "+err.response.data.message});
       } else{
         setAlert({ show: true, message: err.message+" : "+"Customer not added" });
       }

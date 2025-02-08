@@ -1,7 +1,12 @@
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { ArrowLeftCircleIcon, ArrowRightCircleIcon, EyeIcon, TrashIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowLeftCircleIcon,
+  ArrowRightCircleIcon,
+  EyeIcon,
+  TrashIcon,
+} from "@heroicons/react/16/solid";
 import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 // import Navbar from "../Components/Navbar";
 import Alert from "../Components/Alert";
@@ -12,7 +17,7 @@ function ViewCustomer() {
     name: "",
     age: "",
     email: "",
-    // imgURL:null,
+    image:null,
   });
   const [customer, SetCustomer] = useState([]);
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
@@ -25,6 +30,7 @@ function ViewCustomer() {
   const [filterAge, setFilterAge] = useState("");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [imageSrc, setImageSrc] = useState(null);
 
   const onCloseAlert = () => {
     setAlert({ show: false, message: "" });
@@ -34,7 +40,6 @@ function ViewCustomer() {
   }, [search, sortField, sortOrder, filterAge, page]);
 
   const fetchCustomer = async () => {
-
     const queryParams = new URLSearchParams({
       page,
       size: 3,
@@ -47,13 +52,13 @@ function ViewCustomer() {
     fetch(`http://localhost:8081/getCustomer?${queryParams}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log("data : ",data);
-        SetCustomer(data.customers);
+        console.log("data : ", data);
+        SetCustomer(data.content);
         setTotalPages(data.totalPages);
       });
   };
   const nextPage = () => setPage((prev) => Math.min(prev + 1, totalPages - 1));
-const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
+  const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
   // const viewCustomer = async (id) => {
   //   const baseURL = "http://localhost:8081/viewCustomer/" + id;
   //   await axios.get(baseURL);
@@ -71,7 +76,11 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
   const ViewCustomerDetails = async (id) => {
     const baseURL = "http://localhost:8081/viewCustomer/" + id;
     const res = await axios.get(baseURL);
-    setSelectedCustomer(res.data);
+    console.log("res.data",res.data);
+    setSelectedCustomer((prev) => ({
+      ...prev,
+      ...res.data,
+    }));
     setIsViewFormOpen(true);
   };
   const closeViewForm = () => {
@@ -80,14 +89,41 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
   const closeUpdateForm = () => {
     setIsUpdateFormOpen(false);
   };
+  // const handleChange = (e) => {
+  //   // const { name, value } = e.target;
+  //   setSelectedCustomer({
+  //     ...selectedCustomer,
+  //     [e.target.name]: e.target.value,
+  //   });
+  //   setErrors({ ...errors, [e.target.name]: "" });
+  // };
+
   const handleChange = (e) => {
-    // const { name, value } = e.target;
-    setSelectedCustomer({
-      ...selectedCustomer,
-      [e.target.name]: e.target.value,
-    });
-    setErrors({ ...errors, [e.target.name]: "" });
+    const { name, type, value, files } = e.target;
+  
+    if (type === "file") {
+      const file = files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSelectedCustomer((prev) => ({
+            ...prev,
+            [name]: reader.result, // Base64 encoding
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } else {
+      setSelectedCustomer((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
+
+  
   const UpdateCustomer = async (e) => {
     e.preventDefault();
     const baseURL = "http://localhost:8081/updateCustomer";
@@ -140,39 +176,39 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
               className=" p-2 mb-3 border-b-1"
             />
             {/* <div className="flex space-x-3 mb-3"> */}
-              <select
-                onChange={(e) => setSortField(e.target.value)}
-                value={sortField}
-                className="p-2 rounded"
-              >
-                <option value="name">Sort by Name</option>
-                <option value="id">Sort by ID</option>
-                <option value="age">Sort by Age</option>
-              </select>
-              <select
-                onChange={(e) => setSortOrder(e.target.value)}
-                value={sortOrder}
-                className="p-2 rounded"
-              >
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-              </select>
+            <select
+              onChange={(e) => setSortField(e.target.value)}
+              value={sortField}
+              className="p-2 rounded"
+            >
+              <option value="name">Sort by Name</option>
+              <option value="id">Sort by ID</option>
+              <option value="age">Sort by Age</option>
+            </select>
+            <select
+              onChange={(e) => setSortOrder(e.target.value)}
+              value={sortOrder}
+              className="p-2 rounded"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
             <input
               type="number"
               placeholder="Filter by Age"
               value={filterAge}
               onChange={(e) => setFilterAge(e.target.value)}
               className=" p-2 mb-3 border-b-1"
-              />
+            />
             <select
-                // onChange={(e) => setSortOrder(e.target.value)}
-                value={""}
-                className="p-2 rounded"
-                >
-                <option value="pdf">To pdf</option>
-                <option value="excel">To excel</option>
-              </select>
-                {/* </div> */}
+              // onChange={(e) => setSortOrder(e.target.value)}
+              value={""}
+              className="p-2 rounded"
+            >
+              <option value="pdf">To pdf</option>
+              <option value="excel">To excel</option>
+            </select>
+            {/* </div> */}
           </div>
           <div className="overflow-y-scroll max-h-96 hide-scrollbar">
             <ul role="list" className="divide-y divide-gray-100 max-w-5xl">
@@ -182,11 +218,13 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
                   className="flex justify-between gap-x-6 py-5"
                 >
                   <div className="flex min-w-0 gap-x-4 items-center">
+                    
                     <img
-                      alt={customer.name}
-                      src={`http://localhost:8081${customer.imgURL}`}
-                      className="size-12 flex-none rounded-full bg-gray-50"
-                    />
+                        src={customer.image}
+                        alt={customer.name}
+                        className="size-12 flex-none rounded-full bg-gray-50 object-cover"
+                      />
+
                     <div className="min-w-0 flex-auto">
                       <p className="text-sm/6 font-semibold text-amber-200">
                         {customer.id}
@@ -228,23 +266,28 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
                 </li>
               ))}
             </ul>
-            </div>
-            <div className="flex justify-between mt-6">
+          </div>
+          <div className="flex justify-between mt-6">
             <button
-            className="text-amber-200"
-            onClick={prevPage} disabled={page === 0}
+              className="text-amber-200"
+              onClick={prevPage}
+              disabled={page === 0}
             >
-              <ArrowLeftCircleIcon className="size-6"/>
+              <ArrowLeftCircleIcon className="size-6" />
             </button>
-            <h2 className="text-amber-200"> {page + 1} / {totalPages}</h2> {/* Show 1-based index */}
+            <h2 className="text-amber-200">
+              {" "}
+              {page + 1} / {totalPages}
+            </h2>{" "}
+            {/* Show 1-based index */}
             <button
-            className="text-amber-200"
-            onClick={nextPage} disabled={page >= totalPages - 1}
+              className="text-amber-200"
+              onClick={nextPage}
+              disabled={page >= totalPages - 1}
             >
-              <ArrowRightCircleIcon className="size-6"/>
+              <ArrowRightCircleIcon className="size-6" />
             </button>
-            </div>
-          
+          </div>
         </div>
       </div>
 
@@ -263,9 +306,9 @@ const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
               <div className="flex flex-col items-center space-y-4">
                 <img
-                  alt={customer.name}
-                  src={`http://localhost:8081${customer.imgURL}`}
-                  className="size-28 flex-none rounded-full bg-gray-50"
+                  alt={selectedCustomer.name}
+                  src={selectedCustomer.image}
+                  className="size-28 flex-none rounded-full object-cover"
                 />
                 <div className=" flex flex-col justify-evenly">
                   <p className="text-lg font-semibold text-amber-200">
